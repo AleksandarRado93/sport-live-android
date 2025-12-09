@@ -19,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.smart.sportlive.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smart.sportlive.domain.model.DateCategory
@@ -117,13 +119,13 @@ private fun MatchesContent(
 
         // Live matches section header
         item {
-            SectionHeader(title = "MEČEVI UŽIVO")
+            SectionHeader(title = stringResource(R.string.section_live_matches))
         }
 
         if (liveMatches.isEmpty()) {
             item {
                 Text(
-                    text = "Nema utakmica uživo",
+                    text = stringResource(R.string.no_live_matches),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary
                 )
@@ -137,7 +139,7 @@ private fun MatchesContent(
         // Prematch section header
         item {
             Spacer(modifier = Modifier.height(8.dp))
-            SectionHeader(title = "PREMATCH PONUDA")
+            SectionHeader(title = stringResource(R.string.section_prematch))
         }
 
         // Date category tabs
@@ -171,7 +173,7 @@ private fun MatchesContent(
         if (prematchMatches.isEmpty()) {
             item {
                 Text(
-                    text = "Nema dostupnih utakmica",
+                    text = stringResource(R.string.no_available_matches),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary
                 )
@@ -184,11 +186,12 @@ private fun MatchesContent(
     }
 }
 
+@Composable
 private fun DateCategory.toDisplayName(): String {
     return when (this) {
-        DateCategory.TODAY -> "Danas"
-        DateCategory.TOMORROW -> "Sutra"
-        DateCategory.WEEKEND -> "Vikend"
-        DateCategory.NEXT_WEEK -> "Sledeća Nedelja"
+        DateCategory.TODAY -> stringResource(R.string.date_today)
+        DateCategory.TOMORROW -> stringResource(R.string.date_tomorrow)
+        DateCategory.WEEKEND -> stringResource(R.string.date_weekend)
+        DateCategory.NEXT_WEEK -> stringResource(R.string.date_next_week)
     }
 }

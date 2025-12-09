@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">SportLive</string>
+    
+    <!-- Section Headers -->
+    <string name="section_live_matches">MEČEVI UŽIVO</string>
+    <string name="section_prematch">PREMATCH PONUDA</string>
+    
+    <!-- Empty States -->
+    <string name="no_live_matches">Nema utakmica uživo</string>
+    <string name="no_available_matches">Nema dostupnih utakmica</string>
+    <string name="error_load_data">Greška pri učitavanju podataka</string>
+    
+    <!-- Date Categories -->
+    <string name="date_today">Danas</string>
+    <string name="date_tomorrow">Sutra</string>
+    <string name="date_weekend">Vikend</string>
+    <string name="date_next_week">Sledeća Nedelja</string>
 </resources>

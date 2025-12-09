@@ -17,10 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.smart.sportlive.R
 import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
 import com.example.smart.sportlive.presentation.components.CompetitionIcon
@@ -186,11 +188,12 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
     }
 }
 
+@Composable
 private fun DateCategory.toLabel(): String {
     return when (this) {
-        DateCategory.TODAY -> "Danas"
-        DateCategory.TOMORROW -> "Sutra"
-        DateCategory.WEEKEND -> "Vikend"
-        DateCategory.NEXT_WEEK -> "Sledeća Nedelja"
+        DateCategory.TODAY -> stringResource(R.string.date_today)
+        DateCategory.TOMORROW -> stringResource(R.string.date_tomorrow)
+        DateCategory.WEEKEND -> stringResource(R.string.date_weekend)
+        DateCategory.NEXT_WEEK -> stringResource(R.string.date_next_week)
     }
 }
