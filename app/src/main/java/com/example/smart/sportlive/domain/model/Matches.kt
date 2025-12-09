@@ -17,7 +17,8 @@ data class Match(
     val result: Result?,
     val sportId: Int,
     val competitionId: Int,
-    val dateCategory: DateCategory?
+    val dateCategory: DateCategory?,
+    val competition: Competition? = null
 )
 
 data class Result(

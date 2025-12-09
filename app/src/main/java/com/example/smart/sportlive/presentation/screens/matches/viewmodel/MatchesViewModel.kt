@@ -2,7 +2,6 @@ package com.example.smart.sportlive.presentation.screens.matches.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.smart.sportlive.domain.model.Competition
 import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
 import com.example.smart.sportlive.domain.model.Matches
@@ -49,30 +48,30 @@ class MatchesViewModel @Inject constructor(
             if (matchesResult is Result.Success) matchesResult.data
             else Matches(emptyList(), emptyList())
 
-        val hasData = sports.isNotEmpty() || competitions.isNotEmpty() ||
+        val hasData = sports.isNotEmpty() ||
                 matches.liveMatches.isNotEmpty() || matches.preMatches.isNotEmpty()
 
-        val allFailed = sportsResult is Result.Error
-                && competitionsResult is Result.Error
-                && matchesResult is Result.Error
+        val allFailed = sportsResult is Result.Error && matchesResult is Result.Error
 
-        // Auto-select first sport if none selected
         val currentSportId = sportId ?: sports.firstOrNull()?.id
 
         when {
             hasData -> {
-                val filteredLive = matches.liveMatches.filter { match ->
-                    currentSportId == null || match.sportId == currentSportId
-                }
+                val competitionsMap = competitions.associateBy { it.id }
 
-                val filteredPrematch = matches.preMatches.filter { match ->
-                    (currentSportId == null || match.sportId == currentSportId) &&
-                    match.dateCategory == dateCategory
-                }
+                val filteredLive = matches.liveMatches
+                    .filter { match -> currentSportId == null || match.sportId == currentSportId }
+                    .map { match -> match.copy(competition = competitionsMap[match.competitionId]) }
+
+                val filteredPrematch = matches.preMatches
+                    .filter { match ->
+                        (currentSportId == null || match.sportId == currentSportId) &&
+                        match.dateCategory == dateCategory
+                    }
+                    .map { match -> match.copy(competition = competitionsMap[match.competitionId]) }
 
                 MatchesUiState.Success(
                     sports = sports,
-                    competitions = competitions,
                     liveMatches = filteredLive,
                     prematchMatches = filteredPrematch,
                     selectedSportId = currentSportId,
@@ -101,7 +100,6 @@ sealed class MatchesUiState {
     data object Loading : MatchesUiState()
     data class Success(
         val sports: List<Sport>,
-        val competitions: List<Competition>,
         val liveMatches: List<Match>,
         val prematchMatches: List<Match>,
         val selectedSportId: Int?,
