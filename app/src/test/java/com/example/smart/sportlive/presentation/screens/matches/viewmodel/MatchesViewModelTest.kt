@@ -14,7 +14,7 @@ import com.example.smart.sportlive.domain.util.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -33,7 +33,7 @@ class MatchesViewModelTest {
     private lateinit var getCompetitionsUseCase: GetCompetitionsUseCase
     private lateinit var getMatchesUseCase: GetMatchesUseCase
 
-    private val testDispatcher = StandardTestDispatcher()
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
@@ -75,8 +75,11 @@ class MatchesViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            skipItems(1) // Skip Loading
-            val state = awaitItem()
+            // Skip Loading states until we get Success
+            var state = awaitItem()
+            while (state is MatchesUiState.Loading) {
+                state = awaitItem()
+            }
 
             assertTrue(state is MatchesUiState.Success)
             val success = state as MatchesUiState.Success
@@ -95,8 +98,10 @@ class MatchesViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            skipItems(1) // Skip Loading
-            val state = awaitItem()
+            var state = awaitItem()
+            while (state is MatchesUiState.Loading) {
+                state = awaitItem()
+            }
 
             assertTrue(state is MatchesUiState.Error)
         }
@@ -113,8 +118,10 @@ class MatchesViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            skipItems(1)
-            val state = awaitItem()
+            var state = awaitItem()
+            while (state is MatchesUiState.Loading) {
+                state = awaitItem()
+            }
 
             assertTrue(state is MatchesUiState.Success)
             assertEquals(1, (state as MatchesUiState.Success).sports.size)
@@ -143,19 +150,22 @@ class MatchesViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            skipItems(1)
-            var state = awaitItem() as MatchesUiState.Success
+            var state = awaitItem()
+            while (state is MatchesUiState.Loading) {
+                state = awaitItem()
+            }
 
             // Initially selects first sport (Football)
-            assertEquals(1, state.selectedSportId)
-            assertEquals(2, state.liveMatches.size) // 2 football matches
+            var success = state as MatchesUiState.Success
+            assertEquals(1, success.selectedSportId)
+            assertEquals(2, success.liveMatches.size) // 2 football matches
 
             // Select basketball
             viewModel.onSportSelected(2)
-            state = awaitItem() as MatchesUiState.Success
+            success = awaitItem() as MatchesUiState.Success
 
-            assertEquals(2, state.selectedSportId)
-            assertEquals(1, state.liveMatches.size) // 1 basketball match
+            assertEquals(2, success.selectedSportId)
+            assertEquals(1, success.liveMatches.size) // 1 basketball match
         }
     }
 
@@ -178,19 +188,22 @@ class MatchesViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            skipItems(1)
-            var state = awaitItem() as MatchesUiState.Success
+            var state = awaitItem()
+            while (state is MatchesUiState.Loading) {
+                state = awaitItem()
+            }
 
             // Initially TODAY
-            assertEquals(DateCategory.TODAY, state.selectedDateCategory)
-            assertEquals(2, state.prematchMatches.size)
+            var success = state as MatchesUiState.Success
+            assertEquals(DateCategory.TODAY, success.selectedDateCategory)
+            assertEquals(2, success.prematchMatches.size)
 
             // Select TOMORROW
             viewModel.onDateCategorySelected(DateCategory.TOMORROW)
-            state = awaitItem() as MatchesUiState.Success
+            success = awaitItem() as MatchesUiState.Success
 
-            assertEquals(DateCategory.TOMORROW, state.selectedDateCategory)
-            assertEquals(1, state.prematchMatches.size)
+            assertEquals(DateCategory.TOMORROW, success.selectedDateCategory)
+            assertEquals(1, success.prematchMatches.size)
         }
     }
 
@@ -206,20 +219,28 @@ class MatchesViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            skipItems(1)
-            awaitItem()
+            var state = awaitItem()
+            while (state is MatchesUiState.Loading) {
+                state = awaitItem()
+            }
 
             // Change to TOMORROW
             viewModel.onDateCategorySelected(DateCategory.TOMORROW)
-            var state = awaitItem() as MatchesUiState.Success
-            assertEquals(DateCategory.TOMORROW, state.selectedDateCategory)
+            var success = awaitItem() as MatchesUiState.Success
+            assertEquals(DateCategory.TOMORROW, success.selectedDateCategory)
 
             // Select different sport - should reset to TODAY
+            // This updates two state flows, so we might get intermediate emissions
             viewModel.onSportSelected(2)
-            state = awaitItem() as MatchesUiState.Success
+            
+            // Wait until we get the final state with both sportId=2 and dateCategory=TODAY
+            success = awaitItem() as MatchesUiState.Success
+            while (success.selectedSportId != 2 || success.selectedDateCategory != DateCategory.TODAY) {
+                success = awaitItem() as MatchesUiState.Success
+            }
 
-            assertEquals(2, state.selectedSportId)
-            assertEquals(DateCategory.TODAY, state.selectedDateCategory)
+            assertEquals(2, success.selectedSportId)
+            assertEquals(DateCategory.TODAY, success.selectedDateCategory)
         }
     }
 
@@ -237,10 +258,13 @@ class MatchesViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            skipItems(1)
-            val state = awaitItem() as MatchesUiState.Success
+            var state = awaitItem()
+            while (state is MatchesUiState.Loading) {
+                state = awaitItem()
+            }
 
-            assertEquals(1, state.selectedSportId) // First sport selected
+            val success = state as MatchesUiState.Success
+            assertEquals(1, success.selectedSportId) // First sport selected
         }
     }
 
@@ -284,4 +308,3 @@ class MatchesViewModelTest {
         dateCategory = dateCategory
     )
 }
-
