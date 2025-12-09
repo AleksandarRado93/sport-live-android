@@ -3,13 +3,10 @@ package com.example.smart.sportlive.presentation.screens.matches.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -20,22 +17,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
-import coil.request.ImageRequest
 import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
 import com.example.smart.sportlive.domain.model.Sport
 import com.example.smart.sportlive.presentation.components.ErrorContent
 import com.example.smart.sportlive.presentation.components.LoadingContent
+import com.example.smart.sportlive.presentation.components.SectionHeader
+import com.example.smart.sportlive.presentation.components.SportIcon
 import com.example.smart.sportlive.presentation.screens.matches.viewmodel.MatchesUiState
 import com.example.smart.sportlive.presentation.screens.matches.viewmodel.MatchesViewModel
 import com.example.smart.sportlive.presentation.ui.theme.ChipBorder
@@ -189,37 +182,6 @@ private fun MatchesContent(
             }
         }
     }
-}
-
-@Composable
-private fun SectionHeader(title: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .width(4.dp)
-                .height(20.dp)
-                .background(GoldAccent, RoundedCornerShape(2.dp))
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary
-        )
-    }
-}
-
-@Composable
-private fun SportIcon(iconUrl: String) {
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(iconUrl)
-            .decoderFactory(SvgDecoder.Factory())
-            .build(),
-        contentDescription = null,
-        modifier = Modifier.size(20.dp),
-        contentScale = ContentScale.Fit
-    )
 }
 
 private fun DateCategory.toDisplayName(): String {

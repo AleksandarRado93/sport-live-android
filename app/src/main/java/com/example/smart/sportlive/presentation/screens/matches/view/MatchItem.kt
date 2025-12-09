@@ -1,17 +1,13 @@
 package com.example.smart.sportlive.presentation.screens.matches.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,20 +16,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
-import coil.request.ImageRequest
+import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
+import com.example.smart.sportlive.presentation.components.CompetitionIcon
+import com.example.smart.sportlive.presentation.components.TeamAvatar
+import com.example.smart.sportlive.presentation.components.TeamRowWithAvatar
 import com.example.smart.sportlive.presentation.ui.theme.DarkCard
-import com.example.smart.sportlive.presentation.ui.theme.DarkSurface
 import com.example.smart.sportlive.presentation.ui.theme.TealAccent
 import com.example.smart.sportlive.presentation.ui.theme.TextPrimary
 import com.example.smart.sportlive.presentation.ui.theme.TextSecondary
@@ -193,86 +186,11 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
     }
 }
 
-private fun com.example.smart.sportlive.domain.model.DateCategory.toLabel(): String {
+private fun DateCategory.toLabel(): String {
     return when (this) {
-        com.example.smart.sportlive.domain.model.DateCategory.TODAY -> "Danas"
-        com.example.smart.sportlive.domain.model.DateCategory.TOMORROW -> "Sutra"
-        com.example.smart.sportlive.domain.model.DateCategory.WEEKEND -> "Vikend"
-        com.example.smart.sportlive.domain.model.DateCategory.NEXT_WEEK -> "Sledeća Nedelja"
-    }
-}
-
-@Composable
-private fun CompetitionIcon(iconUrl: String) {
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(iconUrl)
-            .decoderFactory(SvgDecoder.Factory())
-            .build(),
-        contentDescription = null,
-        modifier = Modifier.size(20.dp),
-        contentScale = ContentScale.Fit
-    )
-}
-
-@Composable
-private fun TeamAvatar(
-    avatarUrl: String?,
-    size: Int = 32
-) {
-    Box(
-        modifier = Modifier
-            .size(size.dp)
-            .clip(CircleShape)
-            .background(DarkSurface),
-        contentAlignment = Alignment.Center
-    ) {
-        if (avatarUrl != null) {
-            AsyncImage(
-                model = ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
-                    .data(avatarUrl)
-                    .decoderFactory(SvgDecoder.Factory())
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.size(size.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
-}
-
-@Composable
-private fun TeamRowWithAvatar(
-    teamName: String,
-    avatarUrl: String?,
-    score: Int?
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f)
-        ) {
-            TeamAvatar(avatarUrl = avatarUrl, size = 28)
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = teamName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        score?.let {
-            Text(
-                text = it.toString(),
-                style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        DateCategory.TODAY -> "Danas"
+        DateCategory.TOMORROW -> "Sutra"
+        DateCategory.WEEKEND -> "Vikend"
+        DateCategory.NEXT_WEEK -> "Sledeća Nedelja"
     }
 }
