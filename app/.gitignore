@@ -1,0 +1,20 @@
+# OS fajlovi
+.DS_Store
+Thumbs.db
+
+# === Gradle ===
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Lokalna podešavanja
+local.properties
+.gradle/**
+.cxx/
+.externalNativeBuild/
+
+# === Android Studio
+.idea/
+*.ipr
+*.iws
