@@ -2,16 +2,16 @@ package com.example.smart.sportlive.data.repository
 
 import com.example.smart.sportlive.data.local.cache.FileCacheManager
 import com.example.smart.sportlive.data.mapper.toCompetition
-import com.example.smart.sportlive.data.mapper.toMatch
+import com.example.smart.sportlive.data.mapper.toMatches
 import com.example.smart.sportlive.data.mapper.toSport
 import com.example.smart.sportlive.data.model.CompetitionDto
 import com.example.smart.sportlive.data.model.MatchDto
 import com.example.smart.sportlive.data.model.SportDto
-import com.example.smart.sportlive.data.remote.call.ApiResponse
 import com.example.smart.sportlive.data.remote.api.SportApi
+import com.example.smart.sportlive.data.remote.call.ApiResponse
 import com.example.smart.sportlive.data.remote.call.safeApiCall
 import com.example.smart.sportlive.domain.model.Competition
-import com.example.smart.sportlive.domain.model.Match
+import com.example.smart.sportlive.domain.model.Matches
 import com.example.smart.sportlive.domain.model.Sport
 import com.example.smart.sportlive.domain.repository.SportRepository
 import com.example.smart.sportlive.domain.util.Result
@@ -86,26 +86,26 @@ class SportRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getMatches(): Flow<Result<List<Match>>> = flow {
+    override fun getMatches(): Flow<Result<Matches>> = flow {
         val cachedMatches = cacheManager.readFromFile<List<MatchDto>>(
             FileCacheManager.MATCHES_CACHE,
             object : TypeToken<List<MatchDto>>() {}.type
         )
 
         if (!cachedMatches.isNullOrEmpty()) {
-            emit(Result.Success(cachedMatches.map { it.toMatch() }))
+            emit(Result.Success(cachedMatches.toMatches()))
         }
 
         when (val response = safeApiCall { sportApi.getMatches() }) {
             is ApiResponse.Success -> {
                 cacheManager.saveToFile(FileCacheManager.MATCHES_CACHE, response.data)
-                emit(Result.Success(response.data.map { it.toMatch() }, Source.NETWORK))
+                emit(Result.Success(response.data.toMatches(), Source.NETWORK))
             }
             is ApiResponse.Error -> {
                 if (cachedMatches.isNullOrEmpty()) {
                     emit(Result.Error(response.message))
                 } else {
-                    emit(Result.Success(cachedMatches.map { it.toMatch() }, Source.CACHE))
+                    emit(Result.Success(cachedMatches.toMatches(), Source.CACHE))
                 }
             }
         }

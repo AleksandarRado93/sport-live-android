@@ -1,11 +1,14 @@
 package com.example.smart.sportlive.data.mapper
 
 import com.example.smart.sportlive.data.model.CompetitionDto
+import com.example.smart.sportlive.domain.util.DateHelper
 import com.example.smart.sportlive.data.model.MatchDto
 import com.example.smart.sportlive.data.model.ResultDto
 import com.example.smart.sportlive.data.model.SportDto
 import com.example.smart.sportlive.domain.model.Competition
 import com.example.smart.sportlive.domain.model.Match
+import com.example.smart.sportlive.domain.model.Matches
+import com.example.smart.sportlive.domain.model.MatchStatus
 import com.example.smart.sportlive.domain.model.Result
 import com.example.smart.sportlive.domain.model.Sport
 
@@ -27,6 +30,11 @@ fun CompetitionDto.toCompetition(): Competition {
 }
 
 fun MatchDto.toMatch(): Match {
+    val matchStatus = if (status == "LIVE") MatchStatus.LIVE else MatchStatus.PRE_MATCH
+    val dateCategory = if (matchStatus == MatchStatus.PRE_MATCH) {
+        DateHelper.getDateCategory(date)
+    } else null
+
     return Match(
         id = id,
         homeTeam = homeTeam,
@@ -34,11 +42,12 @@ fun MatchDto.toMatch(): Match {
         homeTeamAvatar = homeTeamAvatar,
         awayTeamAvatar = awayTeamAvatar,
         date = date,
-        status = status,
+        status = matchStatus,
         currentTime = currentTime,
         result = result?.toResult(),
         sportId = sportId,
-        competitionId = competitionId
+        competitionId = competitionId,
+        dateCategory = dateCategory
     )
 }
 
@@ -49,3 +58,10 @@ fun ResultDto.toResult(): Result {
     )
 }
 
+fun List<MatchDto>.toMatches(): Matches {
+    val allMatches = this.map { it.toMatch() }
+    return Matches(
+        liveMatches = allMatches.filter { it.status == MatchStatus.LIVE },
+        preMatches = allMatches.filter { it.status == MatchStatus.PRE_MATCH }
+    )
+}

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.smart.sportlive.domain.model.Competition
+import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
 import com.example.smart.sportlive.domain.model.Sport
 import com.example.smart.sportlive.presentation.components.ErrorContent
@@ -36,8 +37,12 @@ fun MatchesScreen(
             is MatchesUiState.Error -> ErrorContent()
             is MatchesUiState.Success -> MatchesContent(
                 sports = state.sports,
-                competitions = state.competitions,
-                matches = state.matches
+                liveMatches = state.liveMatches,
+                prematchMatches = state.prematchMatches,
+                selectedSportId = state.selectedSportId,
+                selectedDateCategory = state.selectedDateCategory,
+                onSportSelected = viewModel::onSportSelected,
+                onDateCategorySelected = viewModel::onDateCategorySelected
             )
         }
     }
@@ -46,8 +51,12 @@ fun MatchesScreen(
 @Composable
 private fun MatchesContent(
     sports: List<Sport>,
-    competitions: List<Competition>,
-    matches: List<Match>
+    liveMatches: List<Match>,
+    prematchMatches: List<Match>,
+    selectedSportId: Int?,
+    selectedDateCategory: DateCategory,
+    onSportSelected: (Int) -> Unit,
+    onDateCategorySelected: (DateCategory) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -55,43 +64,86 @@ private fun MatchesContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Sports section
-        item {
-            Text(
-                text = "Sports (${sports.size})",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+        // Sport tabs
         item {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(sports) { sport ->
-                    SportItem(sport = sport)
+                    FilterChip(
+                        selected = sport.id == selectedSportId,
+                        onClick = { onSportSelected(sport.id) },
+                        label = { Text(sport.name) }
+                    )
                 }
             }
         }
 
-        // Competitions section
+        // Live matches section
         item {
             Text(
-                text = "Competitions (${competitions.size})",
+                text = "MEČEVI UŽIVO",
                 style = MaterialTheme.typography.titleMedium
             )
-        }
-        items(competitions) { competition ->
-            CompetitionItem(competition = competition)
         }
 
-        // Matches section
+        if (liveMatches.isEmpty()) {
+            item {
+                Text(
+                    text = "Nema utakmica uživo",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        } else {
+            items(liveMatches) { match ->
+                MatchItem(match = match)
+            }
+        }
+
+        // Prematch section
         item {
             Text(
-                text = "Matches (${matches.size})",
-                style = MaterialTheme.typography.titleMedium
+                text = "PREMATCH PONUDA",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 16.dp)
             )
         }
-        items(matches) { match ->
-            MatchItem(match = match)
+
+        // Date category tabs
+        item {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(DateCategory.entries) { category ->
+                    FilterChip(
+                        selected = category == selectedDateCategory,
+                        onClick = { onDateCategorySelected(category) },
+                        label = { Text(category.toDisplayName()) }
+                    )
+                }
+            }
         }
+
+        if (prematchMatches.isEmpty()) {
+            item {
+                Text(
+                    text = "Nema dostupnih utakmica",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        } else {
+            items(prematchMatches) { match ->
+                MatchItem(match = match)
+            }
+        }
+    }
+}
+
+private fun DateCategory.toDisplayName(): String {
+    return when (this) {
+        DateCategory.TODAY -> "Danas"
+        DateCategory.TOMORROW -> "Sutra"
+        DateCategory.WEEKEND -> "Vikend"
+        DateCategory.NEXT_WEEK -> "Sledeća"
     }
 }

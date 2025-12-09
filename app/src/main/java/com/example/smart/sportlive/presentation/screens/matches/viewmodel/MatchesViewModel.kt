@@ -3,13 +3,16 @@ package com.example.smart.sportlive.presentation.screens.matches.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smart.sportlive.domain.model.Competition
+import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
+import com.example.smart.sportlive.domain.model.Matches
 import com.example.smart.sportlive.domain.model.Sport
 import com.example.smart.sportlive.domain.usecase.GetCompetitionsUseCase
 import com.example.smart.sportlive.domain.usecase.GetMatchesUseCase
 import com.example.smart.sportlive.domain.usecase.GetSportsUseCase
 import com.example.smart.sportlive.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -23,11 +26,16 @@ class MatchesViewModel @Inject constructor(
     getMatchesUseCase: GetMatchesUseCase
 ) : ViewModel() {
 
+    private val selectedSportId = MutableStateFlow<Int?>(null)
+    private val selectedDateCategory = MutableStateFlow(DateCategory.TODAY)
+
     val uiState: StateFlow<MatchesUiState> = combine(
         getSportsUseCase(),
         getCompetitionsUseCase(),
-        getMatchesUseCase()
-    ) { sportsResult, competitionsResult, matchesResult ->
+        getMatchesUseCase(),
+        selectedSportId,
+        selectedDateCategory
+    ) { sportsResult, competitionsResult, matchesResult, sportId, dateCategory ->
 
         val sports =
             if (sportsResult is Result.Success) sportsResult.data
@@ -39,15 +47,38 @@ class MatchesViewModel @Inject constructor(
 
         val matches =
             if (matchesResult is Result.Success) matchesResult.data
-            else emptyList()
+            else Matches(emptyList(), emptyList())
 
-        val hasData = sports.isNotEmpty() || competitions.isNotEmpty() || matches.isNotEmpty()
+        val hasData = sports.isNotEmpty() || competitions.isNotEmpty() ||
+                matches.liveMatches.isNotEmpty() || matches.preMatches.isNotEmpty()
+
         val allFailed = sportsResult is Result.Error
                 && competitionsResult is Result.Error
                 && matchesResult is Result.Error
 
+        // Auto-select first sport if none selected
+        val currentSportId = sportId ?: sports.firstOrNull()?.id
+
         when {
-            hasData -> MatchesUiState.Success(sports, competitions, matches)
+            hasData -> {
+                val filteredLive = matches.liveMatches.filter { match ->
+                    currentSportId == null || match.sportId == currentSportId
+                }
+
+                val filteredPrematch = matches.preMatches.filter { match ->
+                    (currentSportId == null || match.sportId == currentSportId) &&
+                    match.dateCategory == dateCategory
+                }
+
+                MatchesUiState.Success(
+                    sports = sports,
+                    competitions = competitions,
+                    liveMatches = filteredLive,
+                    prematchMatches = filteredPrematch,
+                    selectedSportId = currentSportId,
+                    selectedDateCategory = dateCategory
+                )
+            }
             allFailed -> MatchesUiState.Error
             else -> MatchesUiState.Loading
         }
@@ -56,6 +87,14 @@ class MatchesViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = MatchesUiState.Loading
     )
+
+    fun onSportSelected(sportId: Int) {
+        selectedSportId.value = sportId
+    }
+
+    fun onDateCategorySelected(category: DateCategory) {
+        selectedDateCategory.value = category
+    }
 }
 
 sealed class MatchesUiState {
@@ -63,9 +102,11 @@ sealed class MatchesUiState {
     data class Success(
         val sports: List<Sport>,
         val competitions: List<Competition>,
-        val matches: List<Match>
+        val liveMatches: List<Match>,
+        val prematchMatches: List<Match>,
+        val selectedSportId: Int?,
+        val selectedDateCategory: DateCategory
     ) : MatchesUiState()
 
     data object Error : MatchesUiState()
 }
-
