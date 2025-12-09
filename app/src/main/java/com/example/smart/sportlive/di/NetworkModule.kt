@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.smart.sportlive.data.remote.api.SportApi
 import javax.inject.Singleton
 
 @Module
@@ -42,5 +43,9 @@ object NetworkModule {
             .build()
     }
 
-    // TODO: Add SportApi provider
+    @Provides
+    @Singleton
+    fun provideSportApi(retrofit: Retrofit): SportApi {
+        return retrofit.create(SportApi::class.java)
+    }
 }
