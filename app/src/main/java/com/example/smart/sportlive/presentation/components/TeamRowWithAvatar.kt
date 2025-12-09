@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.example.smart.sportlive.presentation.ui.theme.TextPrimary
+import com.example.smart.sportlive.presentation.ui.theme.spacing
 
 @Composable
 fun TeamRowWithAvatar(
@@ -21,6 +21,8 @@ fun TeamRowWithAvatar(
     avatarUrl: String?,
     score: Int?
 ) {
+    val spacing = MaterialTheme.spacing
+    
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -31,7 +33,7 @@ fun TeamRowWithAvatar(
             modifier = Modifier.weight(1f)
         ) {
             TeamAvatar(avatarUrl = avatarUrl, size = 28)
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(spacing.medium))
             Text(
                 text = teamName,
                 style = MaterialTheme.typography.bodyLarge,

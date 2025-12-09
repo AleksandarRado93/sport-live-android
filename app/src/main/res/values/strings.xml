@@ -15,4 +15,26 @@
     <string name="date_tomorrow">Sutra</string>
     <string name="date_weekend">Vikend</string>
     <string name="date_next_week">Sledeća Nedelja</string>
+    
+    <!-- Sports -->
+    <string name="sport_football">Fudbal</string>
+    <string name="sport_basketball">Košarka</string>
+    <string name="sport_tennis">Tenis</string>
+    <string name="sport_hockey">Hokej</string>
+    <string name="sport_volleyball">Odbojka</string>
+    <string name="sport_handball">Rukomet</string>
+    <string name="sport_baseball">Bejzbol</string>
+    <string name="sport_american_football">Američki Fudbal</string>
+    <string name="sport_ice_hockey">Hokej na Ledu</string>
+    <string name="sport_table_tennis">Stoni Tenis</string>
+    <string name="sport_badminton">Badminton</string>
+    <string name="sport_cricket">Kriket</string>
+    <string name="sport_rugby">Ragbi</string>
+    <string name="sport_golf">Golf</string>
+    <string name="sport_boxing">Boks</string>
+    <string name="sport_mma">MMA</string>
+    <string name="sport_esports">E-Sportovi</string>
+    <string name="sport_darts">Pikado</string>
+    <string name="sport_snooker">Snuker</string>
+    <string name="sport_waterpolo">Vaterpolo</string>
 </resources>

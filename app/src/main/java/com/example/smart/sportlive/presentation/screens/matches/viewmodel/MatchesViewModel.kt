@@ -69,6 +69,7 @@ class MatchesViewModel @Inject constructor(
                         match.dateCategory == dateCategory
                     }
                     .map { match -> match.copy(competition = competitionsMap[match.competitionId]) }
+                    .sortedBy { it.date }
 
                 MatchesUiState.Success(
                     sports = sports,

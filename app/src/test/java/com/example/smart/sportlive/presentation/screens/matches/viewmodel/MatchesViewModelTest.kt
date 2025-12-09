@@ -86,6 +86,7 @@ class MatchesViewModelTest {
             assertEquals(1, success.sports.size)
             assertEquals(1, success.liveMatches.size)
             assertEquals("Premier League", success.liveMatches[0].competition?.name)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -104,6 +105,7 @@ class MatchesViewModelTest {
             }
 
             assertTrue(state is MatchesUiState.Error)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -125,6 +127,7 @@ class MatchesViewModelTest {
 
             assertTrue(state is MatchesUiState.Success)
             assertEquals(1, (state as MatchesUiState.Success).sports.size)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -166,6 +169,7 @@ class MatchesViewModelTest {
 
             assertEquals(2, success.selectedSportId)
             assertEquals(1, success.liveMatches.size) // 1 basketball match
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -204,6 +208,7 @@ class MatchesViewModelTest {
 
             assertEquals(DateCategory.TOMORROW, success.selectedDateCategory)
             assertEquals(1, success.prematchMatches.size)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -241,6 +246,7 @@ class MatchesViewModelTest {
 
             assertEquals(2, success.selectedSportId)
             assertEquals(DateCategory.TODAY, success.selectedDateCategory)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -265,6 +271,7 @@ class MatchesViewModelTest {
 
             val success = state as MatchesUiState.Success
             assertEquals(1, success.selectedSportId) // First sport selected
+            cancelAndIgnoreRemainingEvents()
         }
     }
 

@@ -15,17 +15,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.smart.sportlive.presentation.ui.theme.GoldAccent
 import com.example.smart.sportlive.presentation.ui.theme.TextPrimary
+import com.example.smart.sportlive.presentation.ui.theme.spacing
 
 @Composable
 fun SectionHeader(title: String) {
+    val spacing = MaterialTheme.spacing
+    
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
-                .width(4.dp)
-                .height(20.dp)
+                .width(spacing.extraSmall)
+                .height(spacing.large)
                 .background(GoldAccent, RoundedCornerShape(2.dp))
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(spacing.small))
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,

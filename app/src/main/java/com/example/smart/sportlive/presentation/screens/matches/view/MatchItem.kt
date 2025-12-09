@@ -32,16 +32,19 @@ import com.example.smart.sportlive.presentation.ui.theme.DarkCard
 import com.example.smart.sportlive.presentation.ui.theme.TealAccent
 import com.example.smart.sportlive.presentation.ui.theme.TextPrimary
 import com.example.smart.sportlive.presentation.ui.theme.TextSecondary
+import com.example.smart.sportlive.presentation.ui.theme.spacing
 
 @Composable
 fun MatchItem(match: Match, isLive: Boolean = false) {
+    val spacing = MaterialTheme.spacing
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = DarkCard)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(spacing.default)
         ) {
             if (isLive) {
                 // Live match header: Competition icon + name + play icon + time
@@ -52,7 +55,7 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                     match.competition?.let { competition ->
                         competition.iconUrl?.let { iconUrl ->
                             CompetitionIcon(iconUrl = iconUrl)
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(spacing.small))
                         }
                         Text(
                             text = competition.name,
@@ -62,13 +65,13 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                     }
 
                     match.currentTime?.let { time ->
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(spacing.medium))
                         Text(
                             text = "▶",
                             color = TealAccent,
                             fontSize = 10.sp
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(spacing.extraSmall))
                         Text(
                             text = time,
                             style = MaterialTheme.typography.labelMedium,
@@ -77,7 +80,7 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(spacing.medium))
 
                 // Live match teams with scores
                 TeamRowWithAvatar(
@@ -85,7 +88,7 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                     avatarUrl = match.homeTeamAvatar,
                     score = match.result?.home
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(spacing.small))
                 TeamRowWithAvatar(
                     teamName = match.awayTeam,
                     avatarUrl = match.awayTeamAvatar,
@@ -107,7 +110,7 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                             avatarUrl = match.homeTeamAvatar,
                             size = 56
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(spacing.small))
                         Text(
                             text = match.homeTeam,
                             style = MaterialTheme.typography.bodySmall,
@@ -131,7 +134,7 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                             ) {
                                 competition.iconUrl?.let { iconUrl ->
                                     CompetitionIcon(iconUrl = iconUrl)
-                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Spacer(modifier = Modifier.width(spacing.extraSmall))
                                 }
                             }
                             Text(
@@ -142,7 +145,7 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(spacing.extraSmall))
                         }
                         
                         // Date category label
@@ -172,7 +175,7 @@ fun MatchItem(match: Match, isLive: Boolean = false) {
                             avatarUrl = match.awayTeamAvatar,
                             size = 56
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(spacing.small))
                         Text(
                             text = match.awayTeam,
                             style = MaterialTheme.typography.bodySmall,

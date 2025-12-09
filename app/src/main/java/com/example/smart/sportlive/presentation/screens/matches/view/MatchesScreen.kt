@@ -32,12 +32,14 @@ import com.example.smart.sportlive.presentation.components.LoadingContent
 import com.example.smart.sportlive.presentation.components.SectionHeader
 import com.example.smart.sportlive.presentation.components.SportIcon
 import com.example.smart.sportlive.presentation.screens.matches.viewmodel.MatchesUiState
+import com.example.smart.sportlive.presentation.util.translateSportName
 import com.example.smart.sportlive.presentation.screens.matches.viewmodel.MatchesViewModel
 import com.example.smart.sportlive.presentation.ui.theme.ChipBorder
 import com.example.smart.sportlive.presentation.ui.theme.ChipUnselected
 import com.example.smart.sportlive.presentation.ui.theme.GoldAccent
 import com.example.smart.sportlive.presentation.ui.theme.TextPrimary
 import com.example.smart.sportlive.presentation.ui.theme.TextSecondary
+import com.example.smart.sportlive.presentation.ui.theme.spacing
 
 @Composable
 fun MatchesScreen(
@@ -77,23 +79,25 @@ private fun MatchesContent(
     onSportSelected: (Int) -> Unit,
     onDateCategorySelected: (DateCategory) -> Unit
 ) {
+    val spacing = MaterialTheme.spacing
+    
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(spacing.default),
+        verticalArrangement = Arrangement.spacedBy(spacing.medium)
     ) {
         // Sport tabs
         item {
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(spacing.small)
             ) {
                 items(sports) { sport ->
                     val isSelected = sport.id == selectedSportId
                     FilterChip(
                         selected = isSelected,
                         onClick = { onSportSelected(sport.id) },
-                        label = { Text(sport.name) },
+                        label = { Text(translateSportName(sport.name)) },
                         leadingIcon = {
                             sport.iconUrl?.let { iconUrl ->
                                 SportIcon(iconUrl = iconUrl)
@@ -138,14 +142,14 @@ private fun MatchesContent(
 
         // Prematch section header
         item {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(spacing.small))
             SectionHeader(title = stringResource(R.string.section_prematch))
         }
 
         // Date category tabs
         item {
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(spacing.small)
             ) {
                 items(DateCategory.entries) { category ->
                     FilterChip(

@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 // Dark theme colors matching design
 val DarkBackground = Color(0xFF1A1A1A)
 val DarkSurface = Color(0xFF252525)
-val DarkCard = Color(0xFF2D2D2D)
+val DarkCard = Color(0xFF141414)
 
 // Accent colors
 val GoldAccent = Color(0xFFF5C451)
