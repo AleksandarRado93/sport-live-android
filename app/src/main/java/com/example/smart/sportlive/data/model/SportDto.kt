@@ -8,6 +8,5 @@ data class SportDto(
     @SerializedName("name")
     val name: String,
     @SerializedName("sportIconUrl")
-    val sportIconUrl: String
+    val sportIconUrl: String?
 )
-

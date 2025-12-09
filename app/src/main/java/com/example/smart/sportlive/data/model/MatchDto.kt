@@ -10,9 +10,9 @@ data class MatchDto(
     @SerializedName("awayTeam")
     val awayTeam: String,
     @SerializedName("homeTeamAvatar")
-    val homeTeamAvatar: String,
+    val homeTeamAvatar: String?,
     @SerializedName("awayTeamAvatar")
-    val awayTeamAvatar: String,
+    val awayTeamAvatar: String?,
     @SerializedName("date")
     val date: String,
     @SerializedName("status")
@@ -33,4 +33,3 @@ data class ResultDto(
     @SerializedName("away")
     val away: Int
 )
-

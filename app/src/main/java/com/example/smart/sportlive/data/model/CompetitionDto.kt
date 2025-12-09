@@ -10,6 +10,5 @@ data class CompetitionDto(
     @SerializedName("name")
     val name: String,
     @SerializedName("competitionIconUrl")
-    val competitionIconUrl: String
+    val competitionIconUrl: String?
 )
-

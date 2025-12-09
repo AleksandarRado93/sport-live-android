@@ -4,6 +4,5 @@ data class Competition(
     val id: Int,
     val sportId: Int,
     val name: String,
-    val iconUrl: String
+    val iconUrl: String?
 )
-
