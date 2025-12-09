@@ -1,4 +1,4 @@
-package com.example.smart.sportlive.presentation.screens.matches
+package com.example.smart.sportlive.presentation.screens.matches.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -42,7 +42,6 @@ class MatchesViewModel @Inject constructor(
             else emptyList()
 
         val hasData = sports.isNotEmpty() || competitions.isNotEmpty() || matches.isNotEmpty()
-
         val allFailed = sportsResult is Result.Error
                 && competitionsResult is Result.Error
                 && matchesResult is Result.Error
@@ -61,10 +60,12 @@ class MatchesViewModel @Inject constructor(
 
 sealed class MatchesUiState {
     data object Loading : MatchesUiState()
-    data object Error : MatchesUiState()
     data class Success(
         val sports: List<Sport>,
         val competitions: List<Competition>,
         val matches: List<Match>
     ) : MatchesUiState()
+
+    data object Error : MatchesUiState()
 }
+

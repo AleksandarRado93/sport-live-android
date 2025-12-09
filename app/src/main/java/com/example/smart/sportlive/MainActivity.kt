@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.example.smart.sportlive.presentation.screens.matches.MatchesScreen
+import com.example.smart.sportlive.presentation.screens.matches.view.MatchesScreen
 import com.example.smart.sportlive.presentation.ui.theme.SportLiveTheme
 import dagger.hilt.android.AndroidEntryPoint
 
