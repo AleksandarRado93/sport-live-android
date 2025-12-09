@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.smart.sportlive.presentation.ui.theme.TextPrimary
 
 @Composable
 fun ErrorContent(
@@ -18,8 +19,8 @@ fun ErrorContent(
     ) {
         Text(
             text = message,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = TextPrimary
         )
     }
 }
-

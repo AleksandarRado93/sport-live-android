@@ -89,6 +89,7 @@ class MatchesViewModel @Inject constructor(
 
     fun onSportSelected(sportId: Int) {
         selectedSportId.value = sportId
+        selectedDateCategory.value = DateCategory.TODAY
     }
 
     fun onDateCategorySelected(category: DateCategory) {

@@ -6,6 +6,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.smart.sportlive.presentation.ui.theme.GoldAccent
 
 @Composable
 fun LoadingContent() {
@@ -13,7 +14,6 @@ fun LoadingContent() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(color = GoldAccent)
     }
 }
-

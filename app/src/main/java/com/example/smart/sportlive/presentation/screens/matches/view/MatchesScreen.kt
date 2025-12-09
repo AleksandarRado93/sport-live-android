@@ -1,18 +1,28 @@
 package com.example.smart.sportlive.presentation.screens.matches.view
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,6 +33,11 @@ import com.example.smart.sportlive.presentation.components.ErrorContent
 import com.example.smart.sportlive.presentation.components.LoadingContent
 import com.example.smart.sportlive.presentation.screens.matches.viewmodel.MatchesUiState
 import com.example.smart.sportlive.presentation.screens.matches.viewmodel.MatchesViewModel
+import com.example.smart.sportlive.presentation.ui.theme.ChipBorder
+import com.example.smart.sportlive.presentation.ui.theme.ChipUnselected
+import com.example.smart.sportlive.presentation.ui.theme.GoldAccent
+import com.example.smart.sportlive.presentation.ui.theme.TextPrimary
+import com.example.smart.sportlive.presentation.ui.theme.TextSecondary
 
 @Composable
 fun MatchesScreen(
@@ -31,7 +46,11 @@ fun MatchesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         when (val state = uiState) {
             is MatchesUiState.Loading -> LoadingContent()
             is MatchesUiState.Error -> ErrorContent()
@@ -62,7 +81,7 @@ private fun MatchesContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Sport tabs
         item {
@@ -73,40 +92,48 @@ private fun MatchesContent(
                     FilterChip(
                         selected = sport.id == selectedSportId,
                         onClick = { onSportSelected(sport.id) },
-                        label = { Text(sport.name) }
+                        label = { Text(sport.name) },
+                        shape = RoundedCornerShape(8.dp),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = sport.id == selectedSportId,
+                            borderColor = ChipBorder,
+                            selectedBorderColor = GoldAccent
+                        ),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = ChipUnselected,
+                            labelColor = TextPrimary,
+                            selectedContainerColor = GoldAccent,
+                            selectedLabelColor = Color.Black
+                        )
                     )
                 }
             }
         }
 
-        // Live matches section
+        // Live matches section header
         item {
-            Text(
-                text = "MEČEVI UŽIVO",
-                style = MaterialTheme.typography.titleMedium
-            )
+            SectionHeader(title = "MEČEVI UŽIVO")
         }
 
         if (liveMatches.isEmpty()) {
             item {
                 Text(
                     text = "Nema utakmica uživo",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
                 )
             }
         } else {
             items(liveMatches) { match ->
-                MatchItem(match = match)
+                MatchItem(match = match, isLive = true)
             }
         }
 
-        // Prematch section
+        // Prematch section header
         item {
-            Text(
-                text = "PREMATCH PONUDA",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            Spacer(modifier = Modifier.height(8.dp))
+            SectionHeader(title = "PREMATCH PONUDA")
         }
 
         // Date category tabs
@@ -118,7 +145,20 @@ private fun MatchesContent(
                     FilterChip(
                         selected = category == selectedDateCategory,
                         onClick = { onDateCategorySelected(category) },
-                        label = { Text(category.toDisplayName()) }
+                        label = { Text(category.toDisplayName()) },
+                        shape = RoundedCornerShape(8.dp),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = category == selectedDateCategory,
+                            borderColor = ChipBorder,
+                            selectedBorderColor = GoldAccent
+                        ),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = ChipUnselected,
+                            labelColor = TextPrimary,
+                            selectedContainerColor = GoldAccent,
+                            selectedLabelColor = Color.Black
+                        )
                     )
                 }
             }
@@ -128,14 +168,33 @@ private fun MatchesContent(
             item {
                 Text(
                     text = "Nema dostupnih utakmica",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
                 )
             }
         } else {
             items(prematchMatches) { match ->
-                MatchItem(match = match)
+                MatchItem(match = match, isLive = false)
             }
         }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(20.dp)
+                .background(GoldAccent, RoundedCornerShape(2.dp))
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = TextPrimary
+        )
     }
 }
 
@@ -144,6 +203,6 @@ private fun DateCategory.toDisplayName(): String {
         DateCategory.TODAY -> "Danas"
         DateCategory.TOMORROW -> "Sutra"
         DateCategory.WEEKEND -> "Vikend"
-        DateCategory.NEXT_WEEK -> "Sledeća"
+        DateCategory.NEXT_WEEK -> "Sledeća Nedelja"
     }
 }
