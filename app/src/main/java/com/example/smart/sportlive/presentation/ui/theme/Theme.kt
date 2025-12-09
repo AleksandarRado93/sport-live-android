@@ -1,4 +1,4 @@
-package com.example.smart.sportlive.ui.theme
+package com.example.smart.sportlive.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -56,3 +56,4 @@ fun SportLiveTheme(
         content = content
     )
 }
+
