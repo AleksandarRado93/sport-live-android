@@ -1,7 +1,6 @@
 package com.example.smart.sportlive.presentation.screens.matches.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -23,9 +23,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
 import com.example.smart.sportlive.domain.model.Sport
@@ -89,14 +94,20 @@ private fun MatchesContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(sports) { sport ->
+                    val isSelected = sport.id == selectedSportId
                     FilterChip(
-                        selected = sport.id == selectedSportId,
+                        selected = isSelected,
                         onClick = { onSportSelected(sport.id) },
                         label = { Text(sport.name) },
+                        leadingIcon = {
+                            sport.iconUrl?.let { iconUrl ->
+                                SportIcon(iconUrl = iconUrl)
+                            }
+                        },
                         shape = RoundedCornerShape(8.dp),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
-                            selected = sport.id == selectedSportId,
+                            selected = isSelected,
                             borderColor = ChipBorder,
                             selectedBorderColor = GoldAccent
                         ),
@@ -196,6 +207,19 @@ private fun SectionHeader(title: String) {
             color = TextPrimary
         )
     }
+}
+
+@Composable
+private fun SportIcon(iconUrl: String) {
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(iconUrl)
+            .decoderFactory(SvgDecoder.Factory())
+            .build(),
+        contentDescription = null,
+        modifier = Modifier.size(20.dp),
+        contentScale = ContentScale.Fit
+    )
 }
 
 private fun DateCategory.toDisplayName(): String {
