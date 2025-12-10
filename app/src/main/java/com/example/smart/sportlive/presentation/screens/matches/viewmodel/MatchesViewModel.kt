@@ -16,55 +16,67 @@ import com.example.smart.sportlive.domain.util.dataOrDefault
 import com.example.smart.sportlive.domain.util.dataOrEmpty
 import com.example.smart.sportlive.domain.util.isFromCache
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class MatchesViewModel @Inject constructor(
-    getSportsUseCase: GetSportsUseCase,
-    getCompetitionsUseCase: GetCompetitionsUseCase,
-    getMatchesUseCase: GetMatchesUseCase
+    private val getSportsUseCase: GetSportsUseCase,
+    private val getCompetitionsUseCase: GetCompetitionsUseCase,
+    private val getMatchesUseCase: GetMatchesUseCase
 ) : ViewModel() {
 
     private val selectedSportId = MutableStateFlow<Int?>(null)
     private val selectedDateCategory = MutableStateFlow(DateCategory.TODAY)
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1)
 
-    val uiState: StateFlow<MatchesUiState> = combine(
-        getSportsUseCase(),
-        getCompetitionsUseCase(),
-        getMatchesUseCase(),
-        selectedSportId,
-        selectedDateCategory
-    ) { sportsResult, competitionsResult, matchesResult, sportId, dateCategory ->
-        val sports = sportsResult.dataOrEmpty()
-        val competitions = competitionsResult.dataOrEmpty()
-        val matches = matchesResult.dataOrDefault(
-            Matches(liveMatches = emptyList(), preMatches = emptyList())
-        )
+    val uiState: StateFlow<MatchesUiState> = refreshTrigger
+        .onStart { refreshTrigger.tryEmit(Unit) }
+        .flatMapLatest {
+            combine(
+                getSportsUseCase(),
+                getCompetitionsUseCase(),
+                getMatchesUseCase(),
+                selectedSportId,
+                selectedDateCategory
+            ) { sportsResult, competitionsResult, matchesResult, sportId, dateCategory ->
+                val sports = sportsResult.dataOrEmpty()
+                val competitions = competitionsResult.dataOrEmpty()
+                val matches = matchesResult.dataOrDefault(
+                    Matches(liveMatches = emptyList(), preMatches = emptyList())
+                )
 
-        val hasData = sports.isNotEmpty() ||
-                matches.liveMatches.isNotEmpty() || matches.preMatches.isNotEmpty()
-        val failed = sportsResult is Result.Error && matchesResult is Result.Error
+                val hasData = sports.isNotEmpty() ||
+                        matches.liveMatches.isNotEmpty() || matches.preMatches.isNotEmpty()
+                val failed = sportsResult is Result.Error && matchesResult is Result.Error
 
-        when {
-            hasData -> buildSuccessState(
-                sports, competitions, matches,
-                sportId, dateCategory,
-                isOffline = isFromCache(sportsResult, matchesResult)
-            )
+                when {
+                    hasData -> buildSuccessState(
+                        sports, competitions, matches,
+                        sportId, dateCategory,
+                        isOffline = isFromCache(sportsResult, matchesResult)
+                    )
 
-            failed -> MatchesUiState.Error
-            else -> MatchesUiState.Loading
+                    failed -> MatchesUiState.Error
+                    else -> MatchesUiState.Loading
+                }
+            }.onStart { emit(MatchesUiState.Loading) }
         }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = MatchesUiState.Loading
-    )
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = MatchesUiState.Loading
+        )
 
     private fun buildSuccessState(
         sports: List<Sport>,
@@ -117,6 +129,10 @@ class MatchesViewModel @Inject constructor(
 
     fun onDateCategorySelected(category: DateCategory) {
         selectedDateCategory.value = category
+    }
+
+    fun retry() {
+        viewModelScope.launch { refreshTrigger.emit(Unit) }
     }
 }
 

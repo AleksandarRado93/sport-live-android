@@ -56,7 +56,7 @@ fun MatchesScreen(
     ) {
         when (val state = uiState) {
             is MatchesUiState.Loading -> LoadingContent()
-            is MatchesUiState.Error -> ErrorContent()
+            is MatchesUiState.Error -> ErrorContent(onRetry = viewModel::retry)
             is MatchesUiState.Success -> {
                 if (state.isOffline) {
                     OfflineBanner()

@@ -13,6 +13,9 @@
     <!-- Offline Indicator -->
     <string name="offline_mode">Offline režim</string>
     
+    <!-- Buttons -->
+    <string name="retry_button">Pokušaj ponovo</string>
+    
     <!-- Date Categories -->
     <string name="date_today">Danas</string>
     <string name="date_tomorrow">Sutra</string>
