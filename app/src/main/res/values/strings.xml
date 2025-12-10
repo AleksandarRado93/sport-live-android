@@ -10,6 +10,9 @@
     <string name="no_available_matches">Nema dostupnih utakmica</string>
     <string name="error_load_data">Greška pri učitavanju podataka</string>
     
+    <!-- Offline Indicator -->
+    <string name="offline_mode">Offline režim</string>
+    
     <!-- Date Categories -->
     <string name="date_today">Danas</string>
     <string name="date_tomorrow">Sutra</string>

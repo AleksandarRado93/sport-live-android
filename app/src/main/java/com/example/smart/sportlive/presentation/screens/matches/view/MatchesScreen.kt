@@ -2,7 +2,7 @@ package com.example.smart.sportlive.presentation.screens.matches.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -29,6 +29,7 @@ import com.example.smart.sportlive.domain.model.Match
 import com.example.smart.sportlive.domain.model.Sport
 import com.example.smart.sportlive.presentation.components.ErrorContent
 import com.example.smart.sportlive.presentation.components.LoadingContent
+import com.example.smart.sportlive.presentation.components.OfflineBanner
 import com.example.smart.sportlive.presentation.components.SectionHeader
 import com.example.smart.sportlive.presentation.components.SportIcon
 import com.example.smart.sportlive.presentation.screens.matches.viewmodel.MatchesUiState
@@ -48,7 +49,7 @@ fun MatchesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
@@ -56,15 +57,21 @@ fun MatchesScreen(
         when (val state = uiState) {
             is MatchesUiState.Loading -> LoadingContent()
             is MatchesUiState.Error -> ErrorContent()
-            is MatchesUiState.Success -> MatchesContent(
-                sports = state.sports,
-                liveMatches = state.liveMatches,
-                prematchMatches = state.prematchMatches,
-                selectedSportId = state.selectedSportId,
-                selectedDateCategory = state.selectedDateCategory,
-                onSportSelected = viewModel::onSportSelected,
-                onDateCategorySelected = viewModel::onDateCategorySelected
-            )
+            is MatchesUiState.Success -> {
+                if (state.isOffline) {
+                    OfflineBanner()
+                }
+                
+                MatchesContent(
+                    sports = state.sports,
+                    liveMatches = state.liveMatches,
+                    prematchMatches = state.prematchMatches,
+                    selectedSportId = state.selectedSportId,
+                    selectedDateCategory = state.selectedDateCategory,
+                    onSportSelected = viewModel::onSportSelected,
+                    onDateCategorySelected = viewModel::onDateCategorySelected
+                )
+            }
         }
     }
 }

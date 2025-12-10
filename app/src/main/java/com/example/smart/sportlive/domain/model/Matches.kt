@@ -21,6 +21,9 @@ data class Match(
     val competition: Competition? = null
 )
 
+fun Match.withCompetition(competitions: Map<Int, Competition>) =
+    copy(competition = competitions[competitionId])
+
 data class Result(
     val home: Int,
     val away: Int

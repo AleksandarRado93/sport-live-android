@@ -2,14 +2,19 @@ package com.example.smart.sportlive.presentation.screens.matches.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smart.sportlive.domain.model.Competition
 import com.example.smart.sportlive.domain.model.DateCategory
 import com.example.smart.sportlive.domain.model.Match
 import com.example.smart.sportlive.domain.model.Matches
 import com.example.smart.sportlive.domain.model.Sport
+import com.example.smart.sportlive.domain.model.withCompetition
 import com.example.smart.sportlive.domain.usecase.GetCompetitionsUseCase
 import com.example.smart.sportlive.domain.usecase.GetMatchesUseCase
 import com.example.smart.sportlive.domain.usecase.GetSportsUseCase
 import com.example.smart.sportlive.domain.util.Result
+import com.example.smart.sportlive.domain.util.dataOrDefault
+import com.example.smart.sportlive.domain.util.dataOrEmpty
+import com.example.smart.sportlive.domain.util.isFromCache
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,51 +40,24 @@ class MatchesViewModel @Inject constructor(
         selectedSportId,
         selectedDateCategory
     ) { sportsResult, competitionsResult, matchesResult, sportId, dateCategory ->
-
-        val sports =
-            if (sportsResult is Result.Success) sportsResult.data
-            else emptyList()
-
-        val competitions =
-            if (competitionsResult is Result.Success) competitionsResult.data
-            else emptyList()
-
-        val matches =
-            if (matchesResult is Result.Success) matchesResult.data
-            else Matches(emptyList(), emptyList())
+        val sports = sportsResult.dataOrEmpty()
+        val competitions = competitionsResult.dataOrEmpty()
+        val matches = matchesResult.dataOrDefault(
+            Matches(liveMatches = emptyList(), preMatches = emptyList())
+        )
 
         val hasData = sports.isNotEmpty() ||
                 matches.liveMatches.isNotEmpty() || matches.preMatches.isNotEmpty()
-
-        val allFailed = sportsResult is Result.Error && matchesResult is Result.Error
-
-        val currentSportId = sportId ?: sports.firstOrNull()?.id
+        val failed = sportsResult is Result.Error && matchesResult is Result.Error
 
         when {
-            hasData -> {
-                val competitionsMap = competitions.associateBy { it.id }
+            hasData -> buildSuccessState(
+                sports, competitions, matches,
+                sportId, dateCategory,
+                isOffline = isFromCache(sportsResult, matchesResult)
+            )
 
-                val filteredLive = matches.liveMatches
-                    .filter { match -> currentSportId == null || match.sportId == currentSportId }
-                    .map { match -> match.copy(competition = competitionsMap[match.competitionId]) }
-
-                val filteredPrematch = matches.preMatches
-                    .filter { match ->
-                        (currentSportId == null || match.sportId == currentSportId) &&
-                        match.dateCategory == dateCategory
-                    }
-                    .map { match -> match.copy(competition = competitionsMap[match.competitionId]) }
-                    .sortedBy { it.date }
-
-                MatchesUiState.Success(
-                    sports = sports,
-                    liveMatches = filteredLive,
-                    prematchMatches = filteredPrematch,
-                    selectedSportId = currentSportId,
-                    selectedDateCategory = dateCategory
-                )
-            }
-            allFailed -> MatchesUiState.Error
+            failed -> MatchesUiState.Error
             else -> MatchesUiState.Loading
         }
     }.stateIn(
@@ -87,6 +65,50 @@ class MatchesViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = MatchesUiState.Loading
     )
+
+    private fun buildSuccessState(
+        sports: List<Sport>,
+        competitions: List<Competition>,
+        matches: Matches,
+        sportId: Int?,
+        dateCategory: DateCategory,
+        isOffline: Boolean
+    ): MatchesUiState.Success {
+        val currentSportId = sportId ?: sports.firstOrNull()?.id
+        val competitionsMap = competitions.associateBy { it.id }
+
+        return MatchesUiState.Success(
+            sports = sports,
+            liveMatches = filterLiveMatches(matches.liveMatches, currentSportId, competitionsMap),
+            prematchMatches = filterPrematchMatches(
+                matches.preMatches,
+                currentSportId,
+                dateCategory,
+                competitionsMap
+            ),
+            selectedSportId = currentSportId,
+            selectedDateCategory = dateCategory,
+            isOffline = isOffline
+        )
+    }
+
+    private fun filterLiveMatches(
+        matches: List<Match>,
+        sportId: Int?,
+        competitionsMap: Map<Int, Competition>
+    ): List<Match> = matches
+        .filter { sportId == null || it.sportId == sportId }
+        .map { it.withCompetition(competitionsMap) }
+
+    private fun filterPrematchMatches(
+        matches: List<Match>,
+        sportId: Int?,
+        dateCategory: DateCategory,
+        competitionsMap: Map<Int, Competition>
+    ): List<Match> = matches
+        .filter { (sportId == null || it.sportId == sportId) && it.dateCategory == dateCategory }
+        .map { it.withCompetition(competitionsMap) }
+        .sortedBy { it.date }
 
     fun onSportSelected(sportId: Int) {
         selectedSportId.value = sportId
@@ -105,7 +127,8 @@ sealed class MatchesUiState {
         val liveMatches: List<Match>,
         val prematchMatches: List<Match>,
         val selectedSportId: Int?,
-        val selectedDateCategory: DateCategory
+        val selectedDateCategory: DateCategory,
+        val isOffline: Boolean = false
     ) : MatchesUiState()
 
     data object Error : MatchesUiState()
